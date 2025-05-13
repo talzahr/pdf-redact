@@ -1,7 +1,5 @@
-# pdf_redact.py
-
 __version__ = "0.1"
-__revision__ = "3" # As requested by user for tracking this specific update stage
+__revision__ = "3" 
 
 import fitz  # PyMuPDF
 import re
@@ -9,14 +7,13 @@ import os
 from PIL import Image
 import pytesseract # For OCR
 import argparse 
-import yaml # For loading patterns from YAML
+import yaml 
 
 # --- Configuration ---
 # If Tesseract is not in your PATH, set its location here
-# Example for Windows:
 # pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
-# --- Helper Functions (Largely unchanged, minor refinements possible) ---
+# Functions
 
 def is_likely_scanned_pdf(page, text_threshold=100):
     text = page.get_text("text")
@@ -56,50 +53,39 @@ def find_and_redact_text_on_page(page, patterns_to_redact):
     # 1. Try direct text extraction using PyMuPDF's search_for
     for pattern_str in patterns_to_redact:
         try:
-            # Using TEXT_SEARCH_REGEX (integer value 8) explicitly for clarity
-            # PyMuPDF's regex engine is not as full-featured as Python's `re`
             text_instances = page.search_for(pattern_str, flags=8) # 8 is fitz.TEXT_SEARCH_REGEX
             for inst_rect in text_instances:
-                # Basic overlap check: if the new instance is largely contained within an existing redaction, skip.
-                # PyMuPDF's apply_redactions should handle merging, but this can reduce redundant annotations.
                 is_covered = any(annot.rect.contains(inst_rect) for annot in page.annots(types=[fitz.PDF_ANNOT_REDACT]))
                 if not is_covered:
                     page.add_redact_annot(inst_rect, fill=redaction_fill_color)
                     redacted_count += 1
-                    # print(f"DEBUG: Redacting (direct): '{page.get_textbox(inst_rect)}' at {inst_rect} for pattern '{pattern_str}'")
         
         except Exception as e_search:
             # This might happen if MuPDF's regex engine can't handle the pattern.
-            # print(f"Warning: MuPDF search_for failed for pattern '{pattern_str}': {e_search}. Trying word-by-word with Python's re.")
             
             # Fallback: Iterate through words and use Python's `re`
-            # This is more flexible for complex regexes but slower.
-            # This part is also useful if patterns are designed to match parts of words or need Python's re features.
             try:
                 words = page.get_text("words")  # list of [x0, y0, x1, y1, "word", ...]
-                compiled_pattern = re.compile(pattern_str) # Compile for efficiency
+                compiled_pattern = re.compile(pattern_str) # for efficiency
                 
                 for word_info in words:
                     word_text = word_info[4]
                     word_rect = fitz.Rect(word_info[0:4])
                     
-                    # Search for pattern within the word. For full word match, regex should use \b or ^$
                     for match in compiled_pattern.finditer(word_text):
-                        # If a match is found, redact the word's rectangle.
-                        # More precise sub-word redaction would require calculating sub-rectangles, which is complex.
                         is_covered = any(annot.rect.contains(word_rect) for annot in page.annots(types=[fitz.PDF_ANNOT_REDACT]))
                         if not is_covered:
                             page.add_redact_annot(word_rect, fill=redaction_fill_color)
                             redacted_count += 1
                             # print(f"DEBUG: Redacting (word-by-word re.search): '{word_text}' (match: '{match.group(0)}') at {word_rect} for pattern '{pattern_str}'")
-                            break # Process next word once this word is marked for redaction by this pattern
+                            break 
             except Exception as e_re:
                 print(f"Error during word-by-word regex for pattern '{pattern_str}': {e_re}")
 
 
     # 2. If page seems scanned or few redactions were made by direct search, try OCR
     run_ocr = is_likely_scanned_pdf(page)
-    if not run_ocr and redacted_count == 0 : # If no direct redactions, consider OCR if text is sparse
+    if not run_ocr and redacted_count == 0 : 
         text_content = page.get_text("text")
         if 0 < len(text_content.strip()) < 500: # Arbitrary threshold for sparse text
              run_ocr = True
@@ -118,8 +104,6 @@ def find_and_redact_text_on_page(page, patterns_to_redact):
                             page.add_redact_annot(ocr_rect, fill=redaction_fill_color)
                             redacted_count += 1
                             # print(f"DEBUG: Redacting (OCR): '{text}' at {ocr_rect} for pattern '{pattern_str}'")
-                            # If an OCR block matches, and ocr_instances are per-word, this is fine.
-                            # If OCR blocks are larger, subsequent matches in the same block by the same pattern are avoided here.
             except Exception as e_ocr_re:
                 print(f"Error during OCR regex for pattern '{pattern_str}': {e_ocr_re}")
     
@@ -158,13 +142,12 @@ def load_patterns_from_yaml(yaml_file_path="patterns.yaml"):
         print(f"An unexpected error occurred while loading patterns from '{yaml_file_path}': {e}. Using default patterns.")
         return default_patterns
 
-# --- Main Application Logic ---
+# Main logic
 def redact_account_numbers_from_pdf(input_pdf_path, output_pdf_path, patterns_file="patterns.yaml", additional_patterns=None):
     if not os.path.exists(input_pdf_path):
         print(f"Error: Input PDF not found at {input_pdf_path}")
         return False
 
-    # Load patterns from YAML, then add any additional programmatic patterns
     effective_patterns = load_patterns_from_yaml(patterns_file)
     if additional_patterns:
         if isinstance(additional_patterns, list):
@@ -177,7 +160,6 @@ def redact_account_numbers_from_pdf(input_pdf_path, output_pdf_path, patterns_fi
         return False
 
     print(f"Using {len(effective_patterns)} redaction patterns for processing.")
-    # For brevity, don't print all patterns if the list is long.
     # print(f"Using redaction patterns: {effective_patterns}") 
 
     try:
@@ -220,7 +202,7 @@ def redact_account_numbers_from_pdf(input_pdf_path, output_pdf_path, patterns_fi
         traceback.print_exc()
         return False
 
-# --- Example Dummy PDF Creator (Unchanged) ---
+# Create a dummy example PDF
 def create_dummy_pdf(filename="dummy_statement.pdf", include_image_page=True):
     doc = fitz.open()
     page = doc.new_page()
@@ -253,7 +235,7 @@ def create_dummy_pdf(filename="dummy_statement.pdf", include_image_page=True):
     doc.close()
     print(f"Dummy PDF created: {filename}")
 
-# --- Main execution ---
+# Main execution 
 if __name__ == "__main__":
     print(f"PDF Redactor v{__version__} (rev {__revision__})")
 
@@ -296,8 +278,6 @@ if __name__ == "__main__":
     print(f"Patterns File: {patterns_file_path}")
 
 
-    # 'additional_patterns' can be used if you want to pass patterns not from YAML, e.g. for dynamic generation
-    # For this CLI tool, patterns primarily come from the YAML file.
     success = redact_account_numbers_from_pdf(input_file, output_file, 
                                               patterns_file=patterns_file_path, 
                                               additional_patterns=None)
