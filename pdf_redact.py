@@ -1,5 +1,5 @@
 __version__ = "0.1"
-__revision__ = "3" 
+__revision__ = "4" 
 
 import fitz  # PyMuPDF
 import re
@@ -109,7 +109,7 @@ def find_and_redact_text_on_page(page, patterns_to_redact):
     
     # Apply actual redactions for the page if any redaction annotations were added
     if list(page.annots(types=[fitz.PDF_ANNOT_REDACT])): 
-        page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_REMOVE) # 0: remove image parts
+         page.apply_redactions(images=fitz.PDF_REDACT_IMAGE_NONE) # ..._REMOVE replaced with ..._NONE to prevent blanking scanned PDFs
     return redacted_count
 
 def load_patterns_from_yaml(yaml_file_path="patterns.yaml"):
