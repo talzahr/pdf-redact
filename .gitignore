@@ -26,6 +26,8 @@ Thumbs.db
 
 # Other project files
 patch.diff
+test_statement.py
+redacted_statement.py
 
 # Large data files (if you have any that shouldn't be in git)
 # path/to/your/image_folder/ # UNCOMMENT AND MODIFY IF YOUR IMAGES AREN'T VERSIONED
