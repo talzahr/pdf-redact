@@ -1,0 +1,31 @@
+# Python
+venv/
+*.pyc
+__pycache__/
+.env
+*.env
+env/
+.venv/
+build/
+dist/
+venv.bat
+
+# IDE / Editor specific
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# Output folders (from your script)
+# If you want to keep test outputs in a subfolder under git,
+# you might adjust this. But generally, generated output is not versioned.
+
+# Other project files
+patch.diff
+
+# Large data files (if you have any that shouldn't be in git)
+# path/to/your/image_folder/ # UNCOMMENT AND MODIFY IF YOUR IMAGES AREN'T VERSIONED
