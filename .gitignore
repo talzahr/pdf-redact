@@ -26,7 +26,4 @@ Thumbs.db
 
 # Other project files
 patch.diff
-*.pdf   # Test articles
-
-# Large data files (if you have any that shouldn't be in git)
-# path/to/your/image_folder/ # UNCOMMENT AND MODIFY IF YOUR IMAGES AREN'T VERSIONED
+*.pdf
