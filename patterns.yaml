@@ -1,0 +1,30 @@
+# patterns.yaml
+# Regular expressions for redacting sensitive information.
+# Each entry is a string representing a Python regex.
+# Remember that backslashes in YAML strings often need to be doubled (e.g., \b becomes \\b).
+
+patterns:
+  - "\\b123456789\\b" # Specific example: 123456789
+
+  # --- General Numeric Patterns ---
+  - "\\b\\d{8,17}\\b"  # Matches standalone numbers with 8 to 17 digits
+  - "\\b\\d{3,6}[-\\s]\\d{2,6}[-\\s]\\d{3,6}(?:[-\\s]\\d{3,6})?\\b" # Common XXX-XXX-XXX or XXXX XXXX XXXX XXXX formats
+
+  # --- Alphanumeric Patterns (Use with caution to avoid over-redaction) ---
+  - "\\b[A-Za-z]{0,2}\\d{6,18}\\b" # Optional 2 letters prefix, then 6-18 digits (e.g., some reference numbers)
+  # - "\\b[A-Za-z0-9]{10,20}\\b" # Generic alphanumeric, 10-20 chars (HIGHLY LIKELY TO HAVE FALSE POSITIVES)
+
+  # --- Contextual Patterns (More advanced, may require careful regex crafting) ---
+  # These patterns attempt to find keywords and then the number.
+  # The current script redacts the entire match of the pattern.
+  # If a pattern is "Account No: \\d+", the whole "Account No: 12345" would be redacted by search_for.
+  # The word-by-word or OCR search might offer more precision if the pattern is designed for Python's `re`.
+  # - "(?i)(?:account|acct|a/c)\\s*(?:number|no\\.?|#)?\\s*[:\\-]?\\s*(\\d[\\d\\s\\-]{5,18}\\d)" # Looks for "Account: XXXXX"
+                                  # Note: Capturing groups are not directly used by MuPDF search_for for partial redaction.
+
+  # --- Add more patterns specific to your bank statements below ---
+  # Example: A pattern for a specific bank's account format if known
+  # - "\\bBANKXYZ-\\d{10}\\b"
+
+  # Example: SSN-like patterns (if this is ever in scope, be extremely careful)
+  # - "\\b\\d{3}-\\d{2}-\\d{4}\\b"

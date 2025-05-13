@@ -2,3 +2,4 @@ packaging==25.0
 pillow==11.2.1
 PyMuPDF==1.25.5
 pytesseract==0.3.13
+PyYAML==6.0.2
