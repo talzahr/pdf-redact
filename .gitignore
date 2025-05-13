@@ -26,11 +26,11 @@ Thumbs.db
 
 # Other project files
 patch.diff
-test_statement.py   # Test articles here and below
-redacted_statement.py
+test_statement.pdf   # Test articles here and below
+redacted_statement.pdf
 test_statement_redacted.pdf
 S_example.pdf
-Scanscan_* 
+Scanscan_*.pdf 
 
 # Large data files (if you have any that shouldn't be in git)
 # path/to/your/image_folder/ # UNCOMMENT AND MODIFY IF YOUR IMAGES AREN'T VERSIONED
