@@ -4,8 +4,8 @@
 # Remember that backslashes in YAML strings often need to be doubled (e.g., \b becomes \\b).
 
 patterns:
-  #- "\\b123456789\\b" # Specific example: 123456789
-  - "\\bGLOBAL\\b" # Test for GLOBAL DEPGLOBAL on scanned (non-OCR) PDF
+  - "\\b123456789\\b" # Specific example: 123456789
+
   # --- General Numeric Patterns ---
   #- "\\b\\d{8,17}\\b"  # Matches standalone numbers with 8 to 17 digits
   #- "\\b\\d{3,6}[-\\s]\\d{2,6}[-\\s]\\d{3,6}(?:[-\\s]\\d{3,6})?\\b" # Common XXX-XXX-XXX or XXXX XXXX XXXX XXXX formats
